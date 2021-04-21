@@ -1,0 +1,12 @@
+Jogo 2D
+Jogo de Plataforma
+Esquerda para direita -> até o final
+A tela segue
+##Endless *sistema de pontos; ranking; score
+3 stages
+Sem inimigos
+Trolls:
+     - plataforma area cai do nada
+     - personagem azul pisa em blocos azuis; alguma hora muda isso
+     - chão igual uma alavanca
+     - alguns items no chão com instant kill
