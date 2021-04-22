@@ -1,12 +1,11 @@
 import pygame
-#from pygame.locals import *
 
 pygame.init()
 
 clock = pygame.time.Clock()
 fps = 60
 
-screen_width = 650
+screen_width = 800
 screen_height = 650
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -44,6 +43,7 @@ class Player():
 		self.vel_y = 0
 		self.jumped = False
 		self.direction = 0
+		self.two_jumps = []
 
 	def update(self):
 		dx = 0
@@ -52,11 +52,25 @@ class Player():
         
 		#get keypresses
 		key = pygame.key.get_pressed()
-		if key[pygame.K_SPACE] and self.jumped == False:
-			self.vel_y = -15
-			self.jumped = True
-		if key[pygame.K_SPACE] == False:
-			self.jumped = False
+		#2-jumps system
+		if len(self.two_jumps)==0:
+			if key[pygame.K_SPACE] and self.jumped == False:
+				self.vel_y = -15
+				self.jumped = True
+				self.two_jumps.append(1)
+			if key[pygame.K_SPACE] == False:
+				self.jumped = False
+		if len(self.two_jumps)==1:
+			if key[pygame.K_SPACE] and self.jumped == False:
+				self.vel_y = -15
+				self.jumped = True
+				self.two_jumps.append(1)
+			if key[pygame.K_SPACE] == False:
+				self.jumped = False
+		if len(self.two_jumps)==2:
+			if self.rect.y == screen_height-130:
+				self.two_jumps.clear()
+		
 		if key[pygame.K_LEFT]:
 			dx -= 5
 			self.counter += 1
@@ -106,8 +120,7 @@ class Player():
 				#check if above the ground i.e. falling
 				elif self.vel_y >= 0:
 					dy = tile[1].top - self.rect.bottom
-					self.vel_y = 0
-
+					self.vel_y = 0			
 
 
 
@@ -119,6 +132,13 @@ class Player():
 			self.rect.bottom = screen_height
 			dy = 0
 
+		if self.rect.y < 0:
+			self.rect.y = 0
+			self.vel_y = 1
+		if self.rect.x > (screen_width-40):
+			self.rect.x = screen_width-40
+		if self.rect.x < 0:
+			self.rect.x = 0
 		#draw player onto screen
 		screen.blit(self.image, self.rect)
 		pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
@@ -154,7 +174,7 @@ class World():
 				# 	self.tile_list.append(tile)
 				col_count += 1
 			row_count += 1
-
+		
 	def draw(self):
 		for tile in self.tile_list:
 			screen.blit(tile[0], tile[1])
@@ -163,26 +183,26 @@ class World():
 
 
 world_data = [
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0], 
+[0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 2, 2, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 7, 0, 5, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0], 
+[0, 7, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 7, 0, 0, 0, 0, 0], 
+[0, 0, 2, 0, 0, 7, 0, 7, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 2, 0, 1, 1, 1, 1, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0], 
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
-[1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 1], 
-[1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 2, 2, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 7, 0, 5, 0, 0, 0, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1], 
-[1, 7, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
-[1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 7, 0, 0, 0, 0, 1], 
-[1, 0, 2, 0, 0, 7, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
-[1, 0, 0, 2, 0, 0, 4, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0, 0, 0, 2, 0, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 2, 2, 2, 2, 1], 
-[1, 0, 0, 0, 0, 0, 2, 2, 2, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1], 
-[1, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-[1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-[1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0, 0, 0, 2, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 2, 2, 2, 2, 0], 
+[0, 0, 0, 0, 0, 0, 2, 2, 2, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 0], 
+[0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], 
+[0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], 
+[0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
 ]
 
 
@@ -201,6 +221,7 @@ while run:
 	world.draw()
 
 	player.update()
+
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
