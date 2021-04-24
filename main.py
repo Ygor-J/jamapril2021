@@ -12,7 +12,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
 
 #define game variables
-tile_size = 50
+tile_size = 25
 
 
 #load images
@@ -21,6 +21,9 @@ sun_img = pygame.transform.scale(sun_img, (100, 100))
 bg_img = pygame.image.load('rsc/sky.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
+pygame.mixer.music.load("rsc\MrScruffKalimbaNinjaTuna.mp3")
+pygame.mixer.music.play()
+pygame.mixer.music.set_volume(0.1)
 
 class Player():
 	def __init__(self, x, y):
@@ -30,7 +33,7 @@ class Player():
 		self.counter = 0
 		for num in range(1, 7):
 			img_right = pygame.image.load(f'rsc/player{num}.png')
-			img_right = pygame.transform.scale(img_right, (40, 80))
+			img_right = pygame.transform.scale(img_right, (30, 60))
 			img_left = pygame.transform.flip(img_right, True, False)
 			self.images_right.append(img_right)
 			self.images_left.append(img_left)
@@ -60,16 +63,16 @@ class Player():
 				self.two_jumps.append(1)
 			if key[pygame.K_SPACE] == False:
 				self.jumped = False
-		if len(self.two_jumps)==1:
-			if key[pygame.K_SPACE] and self.jumped == False:
-				self.vel_y = -15
-				self.jumped = True
-				self.two_jumps.append(1)
-			if key[pygame.K_SPACE] == False:
-				self.jumped = False
-		if len(self.two_jumps)==2:
-			if self.rect.y == screen_height-130:
-				self.two_jumps.clear()
+		# if len(self.two_jumps)==1:
+		# 	if key[pygame.K_SPACE] and self.jumped == False:
+		# 		self.vel_y = -15
+		# 		self.jumped = True
+		# 		self.two_jumps.append(1)
+		# 	if key[pygame.K_SPACE] == False:
+		# 		self.jumped = False
+		# if len(self.two_jumps)==1:
+		# 	if self.rect.y == screen_height-130:
+		# 		self.two_jumps.clear()
 		
 		if key[pygame.K_LEFT]:
 			dx -= 5
@@ -120,7 +123,9 @@ class Player():
 				#check if above the ground i.e. falling
 				elif self.vel_y >= 0:
 					dy = tile[1].top - self.rect.bottom
-					self.vel_y = 0			
+					self.vel_y = 0
+					if len(self.two_jumps)==1:
+						self.two_jumps.clear()			
 
 
 
@@ -135,13 +140,17 @@ class Player():
 		if self.rect.y < 0:
 			self.rect.y = 0
 			self.vel_y = 1
-		if self.rect.x > (screen_width-40):
-			self.rect.x = screen_width-40
+		if self.rect.x > (screen_width-30):
+			self.rect.x = screen_width-30
 		if self.rect.x < 0:
 			self.rect.x = 0
+		if self.rect.x < 100 and self.rect.y < 100:
+			self.rect.x = 5
+			self.rect.y = screen_height - 130
+		
 		#draw player onto screen
 		screen.blit(self.image, self.rect)
-		pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+		#pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
 
 
@@ -178,36 +187,42 @@ class World():
 	def draw(self):
 		for tile in self.tile_list:
 			screen.blit(tile[0], tile[1])
-			pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
+			#pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
 
 
 
 world_data = [
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-[0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0], 
-[0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 2, 2, 0], 
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 7, 0, 5, 0, 0, 0, 0], 
-[0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0], 
-[0, 7, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-[0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 7, 0, 0, 0, 0, 0], 
-[0, 0, 2, 0, 0, 7, 0, 7, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], 
-[0, 0, 0, 2, 0, 1, 1, 1, 1, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 0], 
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0], 
-[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0, 0, 0, 2, 0, 0], 
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 2, 2, 2, 2, 0], 
-[0, 0, 0, 0, 0, 0, 2, 2, 2, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 0], 
-[0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], 
-[0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], 
-[0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+[0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0], 
+[0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
 
 
-player = Player(100, screen_height - 130)
+player = Player(5, screen_height - 130)
 world = World(world_data)
 
 run = True
@@ -216,7 +231,7 @@ while run:
 	clock.tick(fps)
 
 	screen.blit(bg_img, (0, 0))
-	screen.blit(sun_img, (100, 100))
+	screen.blit(sun_img, (0, 0))
 
 	world.draw()
 
