@@ -5,6 +5,8 @@ pygame.init()
 clock = pygame.time.Clock()
 fps = 60
 
+moon = False
+
 screen_width = 800
 screen_height = 650
 
@@ -144,9 +146,11 @@ class Player():
 			self.rect.x = screen_width-30
 		if self.rect.x < 0:
 			self.rect.x = 0
-		if self.rect.x < 100 and self.rect.y < 100:
-			self.rect.x = 5
-			self.rect.y = screen_height - 130
+		if self.rect.x < 100 and self.rect.y < 100 and not moon:
+ 			self.rect.x = 5
+ 			self.rect.y = screen_height - 130
+		if self.rect.x < 100 and self.rect.y < 100 and moon:
+ 			pygame.quit()
 		
 		#draw player onto screen
 		screen.blit(self.image, self.rect)
@@ -240,8 +244,19 @@ while run:
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
-			run = False
+			run = False 
 
+	if pygame.mixer.music.get_pos() > 350000 and not moon:
+		sun_img = pygame.image.load('rsc/moon.png')
+		sun_img = pygame.transform.scale(sun_img, (100, 100)) 
+		bg_img = pygame.image.load('rsc/night.jpg')
+		bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
+		moon = True
+    
 	pygame.display.update()
+
+
+
+
 
 pygame.quit()
