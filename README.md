@@ -9,5 +9,3 @@ Por sinal, música Mr Scruff- Kalimba (Ninja Tuna) do Windows 7 de fundo :)
 
 !["Simples imagem"](https://i.imgur.com/29AhAzY.png)
  
-https://www.youtube.com/playlist?list=PLjcN1EyupaQnHM1I9SmiXfbT6aG4ezUvu
-Coding with Russ
